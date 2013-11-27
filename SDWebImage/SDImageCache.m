@@ -18,7 +18,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 @interface SDImageCache ()
 
 @property (strong, nonatomic) NSCache *memCache;
-@property (strong, nonatomic) NSString *diskCachePath;
 @property (strong, nonatomic) NSMutableArray *customPaths;
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
 
@@ -39,7 +38,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 - (id)init
 {
-    return [self initWithNamespace:@"default"];
+    return [self initWithNamespace:@"pandaviewer"];
 }
 
 - (id)initWithNamespace:(NSString *)ns

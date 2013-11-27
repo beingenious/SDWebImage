@@ -43,6 +43,11 @@ typedef enum SDImageCacheType SDImageCacheType;
 @property (assign, nonatomic) NSInteger maxCacheAge;
 
 /**
+ * The default disk cache path to store images
+ */
+@property (strong, nonatomic) NSString *diskCachePath;
+
+/**
  * The maximum size of the cache, in bytes.
  */
 @property (assign, nonatomic) unsigned long long maxCacheSize;
@@ -60,6 +65,13 @@ typedef enum SDImageCacheType SDImageCacheType;
  * @param ns The namespace to use for this cache store
  */
 - (id)initWithNamespace:(NSString *)ns;
+
+/**
+ * Retrieve cache path for key
+ *
+ * @param key The unique image cache key, usually it's image absolute URL
+ */
+- (NSString *)defaultCachePathForKey:(NSString *)key;
 
 /**
  * Add a read-only cache path to search for images pre-cached by SDImageCache
