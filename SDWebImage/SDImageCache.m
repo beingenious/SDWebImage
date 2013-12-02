@@ -386,28 +386,30 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         //
         //  1. Removing files that are older than the expiration date.
         //  2. Storing file attributes for the size-based cleanup pass.
-        for (NSURL *fileURL in fileEnumerator)
-        {
-            NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
-
-            // Skip directories.
-            if ([resourceValues[NSURLIsDirectoryKey] boolValue])
+        if (self.maxCacheAge != -1) {
+            for (NSURL *fileURL in fileEnumerator)
             {
-                continue;
+                NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
+                
+                // Skip directories.
+                if ([resourceValues[NSURLIsDirectoryKey] boolValue])
+                {
+                    continue;
+                }
+                
+                // Remove files that are older than the expiration date;
+                NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
+                if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate])
+                {
+                    [fileManager removeItemAtURL:fileURL error:nil];
+                    continue;
+                }
+                
+                // Store a reference to this file and account for its total size.
+                NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
+                currentCacheSize += [totalAllocatedSize unsignedLongLongValue];
+                [cacheFiles setObject:resourceValues forKey:fileURL];
             }
-
-            // Remove files that are older than the expiration date;
-            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
-            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate])
-            {
-                [fileManager removeItemAtURL:fileURL error:nil];
-                continue;
-            }
-
-            // Store a reference to this file and account for its total size.
-            NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-            currentCacheSize += [totalAllocatedSize unsignedLongLongValue];
-            [cacheFiles setObject:resourceValues forKey:fileURL];
         }
 
         // If our remaining disk cache exceeds a configured maximum size, perform a second
