@@ -72,7 +72,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _memCache.name = fullNamespace;
 
         // Init the disk cache
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
 
         dispatch_sync(_ioQueue, ^{
@@ -186,6 +186,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
                 if (![fileManager fileExistsAtPath:_diskCachePath]) {
                     [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+                    [[NSURL fileURLWithPath:_diskCachePath isDirectory:YES] setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &error];
                 }
 
                 [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
