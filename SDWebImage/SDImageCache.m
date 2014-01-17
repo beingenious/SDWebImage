@@ -186,7 +186,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
                 if (![fileManager fileExistsAtPath:_diskCachePath]) {
                     [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
-                    [[NSURL fileURLWithPath:_diskCachePath isDirectory:YES] setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &error];
+                    [[NSURL fileURLWithPath:_diskCachePath isDirectory:YES] setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: nil];
                 }
 
                 [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
