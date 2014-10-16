@@ -412,25 +412,27 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         //  1. Removing files that are older than the expiration date.
         //  2. Storing file attributes for the size-based cleanup pass.
         NSMutableArray *urlsToDelete = [[NSMutableArray alloc] init];
-        for (NSURL *fileURL in fileEnumerator) {
-            NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
-            
-            // Skip directories.
-            if ([resourceValues[NSURLIsDirectoryKey] boolValue]) {
-                continue;
+        if (self.maxCacheAge != -1) {
+            for (NSURL *fileURL in fileEnumerator) {
+                NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
+                
+                // Skip directories.
+                if ([resourceValues[NSURLIsDirectoryKey] boolValue]) {
+                    continue;
+                }
+                
+                // Remove files that are older than the expiration date;
+                NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
+                if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
+                    [urlsToDelete addObject:fileURL];
+                    continue;
+                }
+                
+                // Store a reference to this file and account for its total size.
+                NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
+                currentCacheSize += [totalAllocatedSize unsignedIntegerValue];
+                [cacheFiles setObject:resourceValues forKey:fileURL];
             }
-            
-            // Remove files that are older than the expiration date;
-            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
-            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
-                [urlsToDelete addObject:fileURL];
-                continue;
-            }
-            
-            // Store a reference to this file and account for its total size.
-            NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-            currentCacheSize += [totalAllocatedSize unsignedIntegerValue];
-            [cacheFiles setObject:resourceValues forKey:fileURL];
         }
         
         for (NSURL *fileURL in urlsToDelete) {
